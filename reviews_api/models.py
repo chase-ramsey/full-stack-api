@@ -16,6 +16,7 @@ class Review(models.Model):
   user = models.ForeignKey(User, on_delete=models.CASCADE)
   full_text = models.TextField()
   processed_text = models.TextField()
+  edited = models.DateTimeField(auto_now=True, auto_now_add=True)
 
 
 class Tag(models.Model):
