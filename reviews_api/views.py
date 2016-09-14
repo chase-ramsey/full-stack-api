@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from rest_framework import viewsets
 from rest_framework import mixins
 from rest_framework import generics
-
+import review_report
 
 
 class MediaList(viewsets.ModelViewSet):
@@ -20,24 +20,32 @@ class MediaDetail(viewsets.ModelViewSet):
 
 
 
-class ReviewList(viewsets.ModelViewSet):
+class ReviewList(mixins.ListModelMixin,
+                  mixins.CreateModelMixin,
+                  generics.GenericAPIView):
   model = Review
   queryset = Review.objects.all()
   serializer_class = ReviewSerializer
 
+  def get(self, request, *args, **kwargs):
+    return self.list(request, *args, **kwargs)
+
+  def post(self, request, *args, **kwargs):
+    report = review_report.make_call(request.data.full_text)
+    review = request.data
+    review.watson_report = report
+
+    return self.create(review)
+
 class ReviewDetail(mixins.RetrieveModelMixin,
-                    mixins.CreateModelMixin,
                     mixins.UpdateModelMixin,
                     mixins.DestroyModelMixin,
-                    generics.GenericAPIView)
+                    generics.GenericAPIView):
   queryset = Review.objects.all()
   serializer_class = ReviewSerializer
 
   def get(self, request, *args, **kwargs):
     return self.retrieve(request, *args, **kwargs)
-
-  def create(self, request, *args, **kwargs):
-    pass
 
   def put(self, request, *args, **kwargs):
     pass
