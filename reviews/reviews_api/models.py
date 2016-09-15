@@ -24,8 +24,8 @@ class Media(models.Model):
 
 
 class Review(models.Model):
-  media = models.ForeignKey(Media, on_delete=models.CASCADE)
-  user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+  media = models.ForeignKey(Media, on_delete=models.CASCADE, related_name='reviews')
+  user = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='user')
   full_text = models.TextField()
   watson_report = models.TextField()
   edited = models.DateTimeField(auto_now_add=True)
@@ -39,14 +39,14 @@ class Tag(models.Model):
 
 
 class ReviewTag(models.Model):
-  review = models.ForeignKey(Review, on_delete=models.CASCADE)
-  tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+  review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='review_tags')
+  tag = models.ForeignKey(Tag, on_delete=models.CASCADE, related_name='review_tags')
 
 
 class List(models.Model):
-  user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+  user = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='lists')
 
 
 class ListReview(models.Model):
-  list = models.ForeignKey(List, on_delete=models.CASCADE)
-  review = models.ForeignKey(Review, on_delete=models.CASCADE)
+  list = models.ForeignKey(List, on_delete=models.CASCADE, related_name='list_reviews')
+  review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='list_reviews')

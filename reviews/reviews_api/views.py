@@ -1,10 +1,20 @@
 from reviews_api.models import Media, Review, Tag, ReviewTag, List, ListReview
 from reviews_api.serializers import *
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from django.contrib.auth.models import User
 from rest_framework import viewsets
 from rest_framework import mixins
 from rest_framework import generics
 import reviews_api.review_report
+
+@api_view(['GET'])
+def api_root(request, format=None):
+    return Response({
+        'reviews': reverse('reviews', request=request),
+        'media': reverse('media', request=request),
+    })
 
 
 class MediaList(viewsets.ModelViewSet):
@@ -35,7 +45,17 @@ class ReviewList(mixins.ListModelMixin,
     review = request.data
     review.watson_report = report
 
-    return self.create(review)
+    rev_inst = Review.objects.create(
+      media = Media.objects.get(pk=review.media),
+      user = User.objects.get(pk=review.user),
+      full_text = review.full_text,
+      watson_report = review.watson_report
+    )
+    rev_inst.save()
+
+    tags.create_review_tags(rev_inst)
+
+    return Response(rev_inst)
 
 class ReviewDetail(mixins.RetrieveModelMixin,
                     mixins.UpdateModelMixin,
@@ -51,6 +71,16 @@ class ReviewDetail(mixins.RetrieveModelMixin,
     report = review_report.make_call(request.data.full_text)
     review = request.data
     review.watson_report = report
+
+    rev_inst = Review.objects.create(
+      media = Media.objects.get(pk=review.media),
+      user = User.objects.get(pk=review.user),
+      full_text = review.full_text,
+      watson_report = review.watson_report
+    )
+    rev_inst.save()
+
+    tags.create_review_tags(rev_inst, update=True)
 
     return self.update(review)
 
