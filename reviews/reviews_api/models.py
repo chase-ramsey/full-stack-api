@@ -1,23 +1,19 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 
+class MediaChoice(models.Model):
+  choice_name = models.CharField(max_length=15)
+
+  def __str__(self):
+    return self.choice_name
+
+
 class Media(models.Model):
-  ALBUM = 'AB'
-  BOOK = 'BK'
-  VIDEOGAME = 'VG'
-  MOVIE = 'MV'
-  SHOW = 'TV'
-  MEDIA_CHOICES = (
-    (ALBUM, 'Album'),
-    (BOOK, 'Book'),
-    (VIDEOGAME, 'Videogame'),
-    (MOVIE, 'Movie'),
-    (SHOW, 'TV Show'),
-  )
-  media_type = models.CharField(max_length=2, choices=MEDIA_CHOICES)
   title = models.CharField(max_length=100)
   creator = models.CharField(max_length=100)
-  yearReleased = models.IntegerField()
+  year_released = models.IntegerField()
+  media_choice = models.ForeignKey(MediaChoice, on_delete=models.CASCADE, related_name="media")
 
   def __str__(self):
     return self.title
@@ -48,5 +44,5 @@ class List(models.Model):
 
 
 class ListReview(models.Model):
-  list = models.ForeignKey(List, on_delete=models.CASCADE, related_name='list_reviews')
+  list_id = models.ForeignKey(List, on_delete=models.CASCADE, related_name='list_reviews')
   review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='list_reviews')

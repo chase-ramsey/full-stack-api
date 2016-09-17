@@ -1,4 +1,4 @@
-from reviews_api.models import Media, Review, Tag, ReviewTag, List, ListReview
+from reviews_api.models import MediaChoice, Media, Review, Tag, ReviewTag, List, ListReview
 from reviews_api.serializers import *
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -7,27 +7,67 @@ from django.contrib.auth.models import User
 from rest_framework import viewsets
 from rest_framework import mixins
 from rest_framework import generics
-import reviews_api.review_report
+from reviews_api import review_report
+from reviews_api import tags
 
 @api_view(['GET'])
 def api_root(request, format=None):
     return Response({
         'reviews': reverse('reviews', request=request),
         'media': reverse('media', request=request),
+        'users': reverse('users', request=request),
+        'mediachoices': reverse('mediachoices', request=request),
+        'tags': reverse('tags', request=request),
+        'reviewtags': reverse('reviewtags', request=request),
+        'lists': reverse('lists', request=request),
+        'listreviews': reverse('listreviews', request=request),
+        'users': reverse('users', request=request),
     })
 
+class ListView(mixins.ListModelMixin,
+                  mixins.CreateModelMixin,
+                  generics.GenericAPIView):
 
-class MediaList(viewsets.ModelViewSet):
+  def get(self, request, *args, **kwargs):
+    return self.list(request, *args, **kwargs)
+
+  def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+class DetailView(mixins.RetrieveModelMixin,
+                    mixins.UpdateModelMixin,
+                    mixins.DestroyModelMixin,
+                    generics.GenericAPIView):
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+
+class MediaChoiceList(ListView):
+  model = MediaChoice
+  queryset = MediaChoice.objects.all()
+  serializer_class = MediaChoiceSerializer
+
+class MediaChoiceDetail(DetailView):
+  model = MediaChoice
+  queryset = MediaChoice.objects.all()
+  serializer_class = MediaChoiceSerializer
+
+class MediaList(ListView):
   model = Media
   queryset = Media.objects.all()
   serializer_class = MediaSerializer
 
-class MediaDetail(viewsets.ModelViewSet):
+class MediaDetail(DetailView):
   model = Media
   queryset = Media.objects.all()
   serializer_class = MediaSerializer
-  lookup_field = 'title'
-
 
 
 class ReviewList(mixins.ListModelMixin,
@@ -41,21 +81,21 @@ class ReviewList(mixins.ListModelMixin,
     return self.list(request, *args, **kwargs)
 
   def post(self, request, *args, **kwargs):
-    report = review_report.make_call(request.data.full_text)
+    report = review_report.make_call(request.data['full_text'])
     review = request.data
-    review.watson_report = report
 
     rev_inst = Review.objects.create(
-      media = Media.objects.get(pk=review.media),
-      user = User.objects.get(pk=review.user),
-      full_text = review.full_text,
-      watson_report = review.watson_report
+      media = Media.objects.get(pk=int(review['media'].split('/')[-2])),
+      user = User.objects.get(pk=int(review['user'].split('/')[-2])),
+      full_text = review['full_text'],
+      watson_report = report
     )
     rev_inst.save()
 
-    tags.create_review_tags(rev_inst)
+    tags.create_review_tags(review=rev_inst)
 
-    return Response(rev_inst)
+    review_res = ReviewSerializer(rev_inst, context={'request': request})
+    return Response(review_res.data)
 
 class ReviewDetail(mixins.RetrieveModelMixin,
                     mixins.UpdateModelMixin,
@@ -68,80 +108,74 @@ class ReviewDetail(mixins.RetrieveModelMixin,
     return self.retrieve(request, *args, **kwargs)
 
   def put(self, request, *args, **kwargs):
-    report = review_report.make_call(request.data.full_text)
-    review = request.data
-    review.watson_report = report
+    report = review_report.make_call(request.data['full_text'])
+    request.data['watson_report'] = report
+    res = self.update(request, *args, **kwargs)
 
-    rev_inst = Review.objects.create(
-      media = Media.objects.get(pk=review.media),
-      user = User.objects.get(pk=review.user),
-      full_text = review.full_text,
-      watson_report = review.watson_report
-    )
-    rev_inst.save()
+    tags.create_review_tags(data=request.data, id=kwargs['pk'], update=True)
 
-    tags.create_review_tags(rev_inst, update=True)
-
-    return self.update(review)
+    update_res = ReviewSerializer(res)
+    return update_res
 
   def delete(self, request, *args, **kwargs):
-    return self.destroy(request, *args, **kwargs)
+    delete_res = self.destroy(request, *args, **kwargs)
+    tags.clean_up_tags()
+    return delete_res
 
 
 
-class TagList(viewsets.ModelViewSet):
+class TagList(ListView):
   model = Tag
   queryset = Tag.objects.all()
   serializer_class = TagSerializer
 
-class TagDetail(viewsets.ModelViewSet):
+class TagDetail(DetailView):
   model = Tag
   queryset = Tag.objects.all()
   serializer_class = TagSerializer
-  lookup_field = 'word'
 
 
 
-class ReviewTagList(viewsets.ModelViewSet):
+class ReviewTagList(ListView):
   model = ReviewTag
   queryset = ReviewTag.objects.all()
   serializer_class = ReviewTagSerializer
 
-class ReviewTagDetail(viewsets.ModelViewSet):
+class ReviewTagDetail(DetailView):
   model = ReviewTag
   queryset = ReviewTag.objects.all()
   serializer_class = ReviewTagSerializer
 
 
 
-class ListList(viewsets.ModelViewSet):
+class ListList(ListView):
   model = List
   queryset = List.objects.all()
   serializer_class = ListSerializer
 
-class ListDetail(viewsets.ModelViewSet):
+class ListDetail(DetailView):
   model = List
   queryset = List.objects.all()
   serializer_class = ListSerializer
 
 
 
-class ListReviewList(viewsets.ModelViewSet):
+class ListReviewList(ListView):
   model = ListReview
   queryset = ListReview.objects.all()
   serializer_class = ListReviewSerializer
 
-class ListReviewDetail(viewsets.ModelViewSet):
+class ListReviewDetail(DetailView):
   model = ListReview
   queryset = ListReview.objects.all()
   serializer_class = ListReviewSerializer
 
 
 
-class UserList(viewsets.ModelViewSet):
+class UserList(ListView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-class UserDetail(viewsets.ModelViewSet):
+class UserDetail(DetailView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
