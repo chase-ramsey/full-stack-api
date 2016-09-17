@@ -15,7 +15,8 @@ class Review(models.Model):
   media = models.ForeignKey(Media, on_delete=models.CASCADE)
   user = models.ForeignKey(User, on_delete=models.CASCADE)
   full_text = models.TextField()
-  processed_text = models.TextField()
+  watson_report = models.TextField()
+  edited = models.DateTimeField(auto_now=True, auto_now_add=True)
 
 
 class Tag(models.Model):
