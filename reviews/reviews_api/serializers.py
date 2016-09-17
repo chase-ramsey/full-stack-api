@@ -31,30 +31,31 @@ class ReviewTagSerializer(serializers.HyperlinkedModelSerializer):
                     'tag': {'read_only': True}}
 
 class ReviewSerializer(serializers.HyperlinkedModelSerializer):
-
+  owner = serializers.ReadOnlyField(source='owner.username')
   review_tags = ReviewTagSerializer(many=True, read_only=True)
 
   class Meta:
     model = Review
-    fields = ('id', 'url', 'media', 'user', 'full_text', 'watson_report', 'edited', 'review_tags')
+    fields = ('id', 'url', 'media', 'owner', 'full_text', 'watson_report', 'edited', 'review_tags')
     extra_kwargs = {'watson_report': {'read_only': True}}
 
 class ListSerializer(serializers.HyperlinkedModelSerializer):
+  owner = serializers.ReadOnlyField(source='owner.username')
 
   class Meta:
     model = List
-    fields = ('id', 'user')
+    fields = ('id', 'owner', 'name')
 
 class ListReviewSerializer(serializers.HyperlinkedModelSerializer):
 
   class Meta:
     model = ListReview
     fields = ('id', 'review', 'list_id')
-    extra_kwargs = {'review': {'read_only': True},
-                    'list_id': {'read_only': True}}
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
+  reviews = serializers.PrimaryKeyRelatedField(many=True, queryset=Review.objects.all())
+  lists = serializers.PrimaryKeyRelatedField(many=True, queryset=List.objects.all())
 
   class Meta:
     model = User
-    fields = ('id', 'url', 'username')
+    fields = ('id', 'url', 'username', 'reviews', 'lists')

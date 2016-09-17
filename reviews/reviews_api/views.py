@@ -9,6 +9,7 @@ from rest_framework import mixins
 from rest_framework import generics
 from reviews_api import review_report
 from reviews_api import tags
+from rest_framework import permissions
 
 @api_view(['GET'])
 def api_root(request, format=None):
@@ -77,6 +78,8 @@ class ReviewList(mixins.ListModelMixin,
   queryset = Review.objects.all()
   serializer_class = ReviewSerializer
 
+  permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
   def get(self, request, *args, **kwargs):
     return self.list(request, *args, **kwargs)
 
@@ -86,7 +89,7 @@ class ReviewList(mixins.ListModelMixin,
 
     rev_inst = Review.objects.create(
       media = Media.objects.get(pk=int(review['media'].split('/')[-2])),
-      user = User.objects.get(pk=int(review['user'].split('/')[-2])),
+      owner = self.request.user,
       full_text = review['full_text'],
       watson_report = report
     )
@@ -103,6 +106,8 @@ class ReviewDetail(mixins.RetrieveModelMixin,
                     generics.GenericAPIView):
   queryset = Review.objects.all()
   serializer_class = ReviewSerializer
+
+  permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
   def get(self, request, *args, **kwargs):
     return self.retrieve(request, *args, **kwargs)
@@ -153,10 +158,17 @@ class ListList(ListView):
   queryset = List.objects.all()
   serializer_class = ListSerializer
 
+  permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
+  def perform_create(self, serializer):
+    serializer.save(owner=self.request.user)
+
 class ListDetail(DetailView):
   model = List
   queryset = List.objects.all()
   serializer_class = ListSerializer
+
+  permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
 

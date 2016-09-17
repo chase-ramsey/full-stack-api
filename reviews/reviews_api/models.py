@@ -21,10 +21,13 @@ class Media(models.Model):
 
 class Review(models.Model):
   media = models.ForeignKey(Media, on_delete=models.CASCADE, related_name='reviews')
-  user = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='user')
+  owner = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='reviews')
   full_text = models.TextField()
   watson_report = models.TextField()
   edited = models.DateTimeField(auto_now_add=True)
+
+  def __str__(self):
+    return self.media.title
 
 
 class Tag(models.Model):
@@ -40,7 +43,11 @@ class ReviewTag(models.Model):
 
 
 class List(models.Model):
-  user = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='lists')
+  owner = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='lists')
+  name = models.CharField(max_length=50)
+
+  def __str__(self):
+    return self.name
 
 
 class ListReview(models.Model):
