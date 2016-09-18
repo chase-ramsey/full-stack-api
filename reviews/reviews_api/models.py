@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
+from django.conf import settings
 
 class MediaChoice(models.Model):
   choice_name = models.CharField(max_length=15)
@@ -25,6 +26,7 @@ class Review(models.Model):
   full_text = models.TextField()
   watson_report = models.TextField()
   edited = models.DateTimeField(auto_now_add=True)
+  image = models.ImageField(upload_to='reviews')
 
   def __str__(self):
     return self.media.title
@@ -53,3 +55,8 @@ class List(models.Model):
 class ListReview(models.Model):
   list_id = models.ForeignKey(List, on_delete=models.CASCADE, related_name='list_reviews')
   review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='list_reviews')
+
+
+class UserImage(models.Model):
+  owner = models.OneToOneField('auth.User', on_delete=models.CASCADE, related_name='image')
+  image = models.ImageField(upload_to='users')

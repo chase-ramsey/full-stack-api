@@ -24,6 +24,7 @@ def api_root(request, format=None):
         'lists': reverse('lists', request=request),
         'listreviews': reverse('listreviews', request=request),
         'users': reverse('users', request=request),
+        'userimages': reverse('userimages', request=request),
     })
 
 class ListView(mixins.ListModelMixin,
@@ -93,7 +94,8 @@ class ReviewList(mixins.ListModelMixin,
       media = Media.objects.get(pk=int(review['media'].split('/')[-2])),
       owner = self.request.user,
       full_text = review['full_text'],
-      watson_report = report
+      watson_report = report,
+      image = request.FILES['image']
     )
     rev_inst.save()
 
@@ -190,9 +192,24 @@ class ListReviewDetail(DetailView):
 
 
 class UserList(ListView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+  queryset = User.objects.all()
+  serializer_class = UserSerializer
 
 class UserDetail(DetailView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+  queryset = User.objects.all()
+  serializer_class = UserSerializer
+
+
+
+class UserImageList(ListView):
+  model = UserImage
+  queryset = UserImage.objects.all()
+  serializer_class = UserImageSerializer
+
+  def perform_create(self, serializer):
+    serializer.save(owner=self.request.user)
+
+class UserImageDetail(DetailView):
+  model = UserImage
+  queryset = UserImage.objects.all()
+  serializer_class = UserImageSerializer

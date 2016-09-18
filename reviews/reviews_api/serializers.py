@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from reviews_api.models import MediaChoice, Media, Review, Tag, ReviewTag, List, ListReview
+from reviews_api.models import *
 
 class MediaChoiceSerializer(serializers.HyperlinkedModelSerializer):
 
@@ -36,7 +36,7 @@ class ReviewSerializer(serializers.HyperlinkedModelSerializer):
 
   class Meta:
     model = Review
-    fields = ('id', 'url', 'media', 'owner', 'full_text', 'watson_report', 'edited', 'review_tags')
+    fields = ('id', 'url', 'media', 'owner', 'full_text', 'watson_report', 'edited', 'image', 'review_tags')
     extra_kwargs = {'watson_report': {'read_only': True}}
 
 class ListSerializer(serializers.HyperlinkedModelSerializer):
@@ -55,7 +55,16 @@ class ListReviewSerializer(serializers.HyperlinkedModelSerializer):
 class UserSerializer(serializers.HyperlinkedModelSerializer):
   reviews = serializers.PrimaryKeyRelatedField(many=True, queryset=Review.objects.all())
   lists = serializers.PrimaryKeyRelatedField(many=True, queryset=List.objects.all())
+  image = serializers.PrimaryKeyRelatedField(queryset=UserImage.objects.all())
 
   class Meta:
     model = User
-    fields = ('id', 'url', 'username', 'reviews', 'lists')
+    fields = ('id', 'url', 'username', 'reviews', 'lists', 'image')
+
+
+class UserImageSerializer(serializers.HyperlinkedModelSerializer):
+  owner = serializers.ReadOnlyField(source='owner.username')
+
+  class Meta:
+    model = UserImage
+    fields = ('id', 'url', 'image', 'owner')
