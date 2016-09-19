@@ -22,5 +22,6 @@ urlpatterns = [
   url(r'^users/featured/$', FeaturedUserList.as_view(), name='featuredusers'),
   url(r'^userimages/$', UserImageList.as_view(), name='userimages'),
   url(r'^userimages/(?P<pk>[0-9]*)/$', UserImageDetail.as_view(), name="userimage-detail"),
+  url(r'^tagmatch/(?P<tag_id>[0-9]*)/$', TagMatchList, name="tagmatch-list"),
   url(r'^$', api_root),
 ]

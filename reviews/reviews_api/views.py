@@ -12,6 +12,7 @@ from reviews_api import tags
 from rest_framework import permissions
 import reviews_api.permissions
 
+
 @api_view(['GET'])
 def api_root(request, format=None):
     return Response({
@@ -239,3 +240,28 @@ class FeaturedReviewList(ListView):
   model = Review
   queryset = Review.objects.filter(featured=True)
   serializer_class = ReviewSerializer
+
+
+
+class TagMatchList(ListView):
+  lookup_url_kwarg =
+  print(request)
+  all_tags = Tag.objects.all()
+  tag_search = Tag.objects.get(pk=tag_id)
+  tag_match = set()
+
+  for tag in all_tags:
+    tag_split = tag.word.split(' ')
+    for word in tag_split:
+      if word in tag_search.word:
+        tag_match.add(tag)
+
+  review_match = set()
+  for tag in tag_match:
+    rev_tag = ReviewTag.objects.get(tag=tag)
+    review = Review.objects.get(pk=rev_tag.review.id)
+    review_match.add(review)
+
+  review_match = json.dumps(review_match)
+
+  return Response(review_match)
