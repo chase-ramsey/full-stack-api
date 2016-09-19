@@ -18,5 +18,7 @@ urlpatterns = [
   url(r'^listreviews/(?P<pk>[0-9]*)/$', ListReviewDetail.as_view(), name="listreview-detail"),
   url(r'^users/$', UserList.as_view(), name='users'),
   url(r'^users/(?P<pk>[0-9]*)/$', UserDetail.as_view(), name="user-detail"),
+  url(r'^userimages/$', UserImageList.as_view(), name='userimages'),
+  url(r'^userimages/(?P<pk>[0-9]*)/$', UserImageDetail.as_view(), name="userimage-detail"),
   url(r'^$', api_root),
 ]
