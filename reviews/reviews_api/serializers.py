@@ -9,10 +9,11 @@ class MediaChoiceSerializer(serializers.HyperlinkedModelSerializer):
     fields = ('id', 'url', 'choice_name')
 
 class MediaSerializer(serializers.HyperlinkedModelSerializer):
+  media_choice = serializers.StringRelatedField()
 
   class Meta:
     model = Media
-    fields = ('id', 'url', 'media_choice', 'title', 'creator', 'year_released')
+    fields = ('id', 'url', 'media_choice', 'title', 'creator', 'year_released', 'media_choice')
 
 class TagSerializer(serializers.HyperlinkedModelSerializer):
 
@@ -33,6 +34,7 @@ class ReviewTagSerializer(serializers.HyperlinkedModelSerializer):
 class ReviewSerializer(serializers.HyperlinkedModelSerializer):
   owner = serializers.ReadOnlyField(source='owner.username')
   review_tags = ReviewTagSerializer(many=True, read_only=True)
+  media = MediaSerializer(read_only=True)
 
   class Meta:
     model = Review
