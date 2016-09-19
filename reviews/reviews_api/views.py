@@ -26,6 +26,7 @@ def api_root(request, format=None):
         'users': reverse('users', request=request),
         'userimages': reverse('userimages', request=request),
         'featuredusers': reverse('featuredusers', request=request),
+        'featuredreviews': reverse('featuredreviews', request=request),
     })
 
 class ListView(mixins.ListModelMixin,

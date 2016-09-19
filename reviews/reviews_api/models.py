@@ -65,3 +65,6 @@ class UserImage(models.Model):
 class UserFeatured(models.Model):
   owner = models.OneToOneField('auth.User', on_delete=models.CASCADE, related_name='featured')
   featured = models.BooleanField(default=False)
+
+  def __str__(self):
+    return self.owner.username
