@@ -27,6 +27,7 @@ class Review(models.Model):
   watson_report = models.TextField()
   edited = models.DateTimeField(auto_now_add=True)
   image = models.ImageField(upload_to='reviews')
+  featured = models.BooleanField(default=False)
 
   def __str__(self):
     return self.media.title
@@ -60,3 +61,7 @@ class ListReview(models.Model):
 class UserImage(models.Model):
   owner = models.OneToOneField('auth.User', on_delete=models.CASCADE, related_name='image')
   image = models.ImageField(upload_to='users')
+
+class UserFeatured(models.Model):
+  owner = models.OneToOneField('auth.User', on_delete=models.CASCADE, related_name='featured')
+  featured = models.BooleanField(default=False)
