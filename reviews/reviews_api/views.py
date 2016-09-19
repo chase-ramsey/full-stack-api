@@ -25,6 +25,8 @@ def api_root(request, format=None):
         'listreviews': reverse('listreviews', request=request),
         'users': reverse('users', request=request),
         'userimages': reverse('userimages', request=request),
+        'featuredusers': reverse('featuredusers', request=request),
+        'featuredreviews': reverse('featuredreviews', request=request),
     })
 
 class ListView(mixins.ListModelMixin,
@@ -195,6 +197,13 @@ class UserList(ListView):
   queryset = User.objects.all()
   serializer_class = UserSerializer
 
+  def post(self, request, *args, **kwargs):
+    new_user = self.create(request, *args, **kwargs)
+    print(new_user.data)
+    uf = UserFeatured.objects.create(owner=User.objects.get(pk=int(new_user.data['id'])))
+
+    return new_user
+
 class UserDetail(DetailView):
   queryset = User.objects.all()
   serializer_class = UserSerializer
@@ -206,10 +215,27 @@ class UserImageList(ListView):
   queryset = UserImage.objects.all()
   serializer_class = UserImageSerializer
 
-  def perform_create(self, serializer):
-    serializer.save(owner=self.request.user)
-
 class UserImageDetail(DetailView):
   model = UserImage
   queryset = UserImage.objects.all()
   serializer_class = UserImageSerializer
+
+class UserFeaturedList(ListView):
+  model = UserFeatured
+  queryset = UserFeatured.objects.all()
+  serializer_class = UserFeaturedSerializer
+
+  def perform_create(self, serializer):
+    serializer.save(owner=self.request.user)
+
+
+
+class FeaturedUserList(ListView):
+  model = User
+  queryset = User.objects.filter(featured=True)
+  serializer_class = UserSerializer
+
+class FeaturedReviewList(ListView):
+  model = Review
+  queryset = Review.objects.filter(featured=True)
+  serializer_class = ReviewSerializer
