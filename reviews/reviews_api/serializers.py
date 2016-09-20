@@ -38,7 +38,7 @@ class ReviewSerializer(serializers.HyperlinkedModelSerializer):
 
   class Meta:
     model = Review
-    fields = ('id', 'url', 'media', 'owner', 'full_text', 'watson_report', 'edited', 'image', 'review_tags', 'featured')
+    fields = ('id', 'url', 'media', 'owner', 'full_text', 'watson_report', 'edited', 'image_url', 'review_tags', 'featured')
     extra_kwargs = {'watson_report': {'read_only': True}}
 
 class ListSerializer(serializers.HyperlinkedModelSerializer):
@@ -66,7 +66,7 @@ class UserImageSerializer(serializers.HyperlinkedModelSerializer):
 
   class Meta:
     model = UserImage
-    fields = ('id', 'url', 'image', 'owner')
+    fields = ('id', 'url', 'image_url', 'owner')
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
   reviews = ReviewSerializer(many=True, read_only=True)

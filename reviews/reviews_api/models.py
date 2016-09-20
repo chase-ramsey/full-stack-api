@@ -26,7 +26,7 @@ class Review(models.Model):
   full_text = models.TextField()
   watson_report = models.TextField()
   edited = models.DateTimeField(auto_now_add=True)
-  image = models.ImageField(upload_to='reviews')
+  image_url = models.CharField(max_length=150, default='https://firebasestorage.googleapis.com/v0/b/full-stack-images.appspot.com/o/file-media.svg?alt=media&token=8bb8a118-f9b4-422b-a8fc-9974eb8094de')
   featured = models.BooleanField(default=False)
 
   def __str__(self):
@@ -60,7 +60,7 @@ class ListReview(models.Model):
 
 class UserImage(models.Model):
   owner = models.OneToOneField('auth.User', on_delete=models.CASCADE, related_name='image')
-  image = models.ImageField(upload_to='users')
+  image_url = models.CharField(max_length=150, default='https://firebasestorage.googleapis.com/v0/b/full-stack-images.appspot.com/o/person.svg?alt=media&token=51e701f8-817f-4b7e-a79e-353e7561ec36')
 
 class UserFeatured(models.Model):
   owner = models.OneToOneField('auth.User', on_delete=models.CASCADE, related_name='featured')

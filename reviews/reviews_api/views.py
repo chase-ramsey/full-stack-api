@@ -97,7 +97,7 @@ class ReviewList(mixins.ListModelMixin,
       owner = self.request.user,
       full_text = review['full_text'],
       watson_report = report,
-      image = request.FILES['image']
+      image_url = request['image_url']
     )
     rev_inst.save()
 
@@ -199,8 +199,14 @@ class UserList(ListView):
 
   def post(self, request, *args, **kwargs):
     new_user = self.create(request, *args, **kwargs)
-    print(new_user.data)
     uf = UserFeatured.objects.create(owner=User.objects.get(pk=int(new_user.data['id'])))
+    uf.save()
+    if request.data['image_url'] != '':
+      ui = UserImage.objects.create(owner=User.objects.get(pk=int(new_user.data['id'])), image_url=request.data['image_url'])
+      ui.save()
+    else:
+      ui = UserImage.objects.create(owner=User.objects.get(pk=int(new_user.data['id'])))
+      ui.save()
 
     return new_user
 
