@@ -44,10 +44,12 @@ class ReviewSerializer(serializers.HyperlinkedModelSerializer):
 
 class ListSerializer(serializers.HyperlinkedModelSerializer):
   owner = serializers.ReadOnlyField(source='owner.username')
+  user_id = serializers.ReadOnlyField(source='owner.id')
+
 
   class Meta:
     model = List
-    fields = ('id', 'url', 'owner', 'name')
+    fields = ('id', 'url', 'owner', 'user_id', 'name')
 
 class ListReviewSerializer(serializers.HyperlinkedModelSerializer):
   review = ReviewSerializer(read_only=True)
