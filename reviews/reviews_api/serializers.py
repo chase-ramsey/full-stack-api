@@ -33,12 +33,13 @@ class ReviewTagSerializer(serializers.HyperlinkedModelSerializer):
 
 class ReviewSerializer(serializers.HyperlinkedModelSerializer):
   owner = serializers.ReadOnlyField(source='owner.username')
+  user_id = serializers.ReadOnlyField(source='owner.id')
   review_tags = ReviewTagSerializer(many=True, read_only=True)
   media = MediaSerializer(read_only=True)
 
   class Meta:
     model = Review
-    fields = ('id', 'url', 'media', 'owner', 'full_text', 'watson_report', 'edited', 'image_url', 'review_tags', 'featured')
+    fields = ('id', 'url', 'media', 'owner', 'user_id', 'full_text', 'watson_report', 'edited', 'image_url', 'review_tags', 'featured')
     extra_kwargs = {'watson_report': {'read_only': True}}
 
 class ListSerializer(serializers.HyperlinkedModelSerializer):
@@ -77,4 +78,4 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
   class Meta:
     model = User
-    fields = ('id', 'url', 'username', 'reviews', 'lists', 'image', 'featured')
+    fields = ('id', 'url', 'first_name', 'last_name', 'username', 'reviews', 'lists', 'image', 'featured')
