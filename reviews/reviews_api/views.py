@@ -23,6 +23,7 @@ def api_root(request, format=None):
         'reviewtags': reverse('reviewtags', request=request),
         'lists': reverse('lists', request=request),
         'listreviews': reverse('listreviews', request=request),
+        'listreview-match': reverse('listreview-match', request=request),
         'users': reverse('users', request=request),
         'userimages': reverse('userimages', request=request),
         'featuredusers': reverse('featuredusers', request=request),
@@ -190,6 +191,14 @@ class ListReviewDetail(DetailView):
   model = ListReview
   queryset = ListReview.objects.all()
   serializer_class = ListReviewSerializer
+
+class ListReviewMatch(ListView):
+  model = ListReview
+  serializer_class = ListReviewSerializer
+
+  def get(self, request, *args, **kwargs):
+    self.queryset = ListReview.objects.filter(list_id=kwargs['list_id'])
+    return self.list(request, *args, **kwargs)
 
 
 

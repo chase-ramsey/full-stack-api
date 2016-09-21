@@ -49,6 +49,7 @@ class ListSerializer(serializers.HyperlinkedModelSerializer):
     fields = ('id', 'url', 'owner', 'name')
 
 class ListReviewSerializer(serializers.HyperlinkedModelSerializer):
+  review = ReviewSerializer(read_only=True)
 
   class Meta:
     model = ListReview

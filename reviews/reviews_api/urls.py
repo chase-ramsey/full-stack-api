@@ -17,6 +17,7 @@ urlpatterns = [
   url(r'^lists/(?P<pk>[0-9]*)/$', ListDetail.as_view(), name="list-detail"),
   url(r'^listreviews/$', ListReviewList.as_view(), name='listreviews'),
   url(r'^listreviews/(?P<pk>[0-9]*)/$', ListReviewDetail.as_view(), name="listreview-detail"),
+  url(r'^listreviews/list/(?P<list_id>[0-9]*)/$', ListReviewMatch.as_view(), name="listreview-match"),
   url(r'^users/$', UserList.as_view(), name='users'),
   url(r'^users/(?P<pk>[0-9]*)/$', UserDetail.as_view(), name="user-detail"),
   url(r'^users/featured/$', FeaturedUserList.as_view(), name='featuredusers'),
