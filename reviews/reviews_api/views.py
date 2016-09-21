@@ -23,7 +23,6 @@ def api_root(request, format=None):
         'reviewtags': reverse('reviewtags', request=request),
         'lists': reverse('lists', request=request),
         'listreviews': reverse('listreviews', request=request),
-        'listreview-match': reverse('listreview-match', request=request),
         'users': reverse('users', request=request),
         'userimages': reverse('userimages', request=request),
         'featuredusers': reverse('featuredusers', request=request),
