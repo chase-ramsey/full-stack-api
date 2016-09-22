@@ -1,4 +1,5 @@
-from reviews_api.models import MediaChoice, Media, Review, Tag, ReviewTag, List, ListReview
+from reviews_api.models import *
+from django.contrib.auth import logout, login, authenticate
 from reviews_api.serializers import *
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -10,6 +11,9 @@ from rest_framework import generics
 from reviews_api import review_report
 from reviews_api import tags
 from rest_framework import permissions
+from django.views.decorators.csrf import csrf_exempt
+import json
+from django.http import HttpResponse
 import reviews_api.permissions
 
 @api_view(['GET'])
@@ -253,3 +257,51 @@ class FeaturedReviewList(ListView):
   model = Review
   queryset = Review.objects.filter(featured=True)
   serializer_class = ReviewSerializer
+
+@csrf_exempt
+def login_user(request):
+    print('========= Logging in user ==========')
+    req_body = json.loads(request.body.decode())
+
+    print(req_body)
+    auth = authenticate(
+            username=req_body['username'],
+            password=req_body['password']
+            )
+    print(auth)
+
+    success = True
+    if auth is not None:
+        login(request=request, user=auth)
+    else:
+        success = False
+    print(success)
+
+    data = json.dumps({"success":success})
+    return HttpResponse(data, content_type='application/json')
+
+@csrf_exempt
+def register_user(request):
+    req_body = json.loads(request.body.decode())
+
+    new_user = User.objects.create(
+      first_name=req_body['first_name'],
+      last_name=req_body['last_name'],
+      email=req_body['email'],
+      username=req_body['username'],
+    )
+
+    new_user.set_password(req_body['password']);
+
+    new_user.save()
+
+    uf = UserFeatured.objects.create(owner=new_user)
+    try:
+      ui = UserImage.objects.create(owner=new_user, image_url=req_body['image_url'])
+    except KeyError:
+      ui = UserImage.objects.create(owner=new_user)
+
+    data = json.dumps({"success":True})
+    return HttpResponse(data, content_type='application/json')
+
+
