@@ -3,7 +3,7 @@ from reviews_api.views import *
 
 urlpatterns = [
   url(r'^reviews/$', ReviewList.as_view(), name='reviews'),
-  url(r'^reviews/(?P<pk>[0-9]*)/$', ReviewDetail.as_view(), name="review-detail"),
+  url(r'^reviews/(?P<pk>[0-9]*)$', ReviewDetail.as_view(), name="review-detail"),
   url(r'^reviews/featured/$', FeaturedReviewList.as_view(), name='featuredreviews'),
   url(r'^mediachoices/$', MediaChoiceList.as_view(), name='mediachoices'),
   url(r'^mediachoices/(?P<pk>[0-9]*)/$', MediaChoiceDetail.as_view(), name="mediachoice-detail"),

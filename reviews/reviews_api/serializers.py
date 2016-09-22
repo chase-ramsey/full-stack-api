@@ -13,7 +13,7 @@ class MediaSerializer(serializers.HyperlinkedModelSerializer):
 
   class Meta:
     model = Media
-    fields = ('id', 'url', 'media_choice', 'title', 'creator', 'year_released', 'media_choice')
+    fields = ('id', 'url', 'media_choice', 'title', 'creator', 'year_released')
 
 class TagSerializer(serializers.HyperlinkedModelSerializer):
 

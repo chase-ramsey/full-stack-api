@@ -67,11 +67,27 @@ class MediaChoiceDetail(DetailView):
   model = MediaChoice
   queryset = MediaChoice.objects.all()
   serializer_class = MediaChoiceSerializer
+  lookup_field = 'choice_name'
 
 class MediaList(ListView):
   model = Media
   queryset = Media.objects.all()
   serializer_class = MediaSerializer
+
+  def post(self, request, *args, **kwargs):
+    req_body = json.loads(request.body.decode())
+    mc = MediaChoice.objects.get(choice_name=req_body['media_choice'])
+
+    media_inst = Media.objects.create(
+      media_choice=mc,
+      title=req_body['title'],
+      creator=req_body['creator'],
+      year_released=req_body['year_released'],
+    )
+    media_inst.save()
+
+    media_res = MediaSerializer(media_inst, context={'request': request})
+    return Response(media_res.data)
 
 class MediaDetail(DetailView):
   model = Media
@@ -93,15 +109,16 @@ class ReviewList(mixins.ListModelMixin,
     return self.list(request, *args, **kwargs)
 
   def post(self, request, *args, **kwargs):
-    report = review_report.make_call(request.data['full_text'])
-    review = request.data
+    review = json.loads(request.body.decode())
+    print(review)
+    report = review_report.make_call(review['full_text'])
 
     rev_inst = Review.objects.create(
       media = Media.objects.get(pk=int(review['media'].split('/')[-2])),
       owner = self.request.user,
       full_text = review['full_text'],
       watson_report = report,
-      image_url = request['image_url']
+      image_url = review['image_url']
     )
     rev_inst.save()
 
@@ -260,22 +277,18 @@ class FeaturedReviewList(ListView):
 
 @csrf_exempt
 def login_user(request):
-    print('========= Logging in user ==========')
     req_body = json.loads(request.body.decode())
 
-    print(req_body)
     auth = authenticate(
             username=req_body['username'],
             password=req_body['password']
             )
-    print(auth)
 
     success = True
     if auth is not None:
         login(request=request, user=auth)
     else:
         success = False
-    print(success)
 
     data = json.dumps({"success":success})
     return HttpResponse(data, content_type='application/json')
