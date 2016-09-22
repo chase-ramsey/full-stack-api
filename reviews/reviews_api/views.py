@@ -10,6 +10,7 @@ from rest_framework import generics
 from reviews_api import review_report
 from reviews_api import tags
 from rest_framework import permissions
+from django.views.decorators.csrf import csrf_exempt
 import reviews_api.permissions
 
 @api_view(['GET'])
@@ -253,3 +254,21 @@ class FeaturedReviewList(ListView):
   model = Review
   queryset = Review.objects.filter(featured=True)
   serializer_class = ReviewSerializer
+
+@csrf_exempt
+def login_user(request):
+    req_body = json.loads(request.body.decode())
+
+    auth = authenticate(
+            username=req_body['username'],
+            password=req_body['password']
+            )
+
+    success = True
+    if auth is not None:
+        login(request=request, user=authenticated_user)
+    else:
+        success = False
+
+    data = json.dumps({"success":success})
+    return HttpResponse(data, content_type='application/json')
