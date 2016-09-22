@@ -24,5 +24,6 @@ urlpatterns = [
   url(r'^userimages/$', UserImageList.as_view(), name='userimages'),
   url(r'^userimages/(?P<pk>[0-9]*)/$', UserImageDetail.as_view(), name="userimage-detail"),
   url(r'^login/$', login_user, name='login'),
+  url(r'^register/$', register_user, name='register'),
   url(r'^$', api_root),
 ]

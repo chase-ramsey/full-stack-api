@@ -275,3 +275,27 @@ def login_user(request):
 
     data = json.dumps({"success":success})
     return HttpResponse(data, content_type='application/json')
+
+@csrf_exempt
+def register_user(request):
+    req_body = json.loads(request.body.decode())
+
+    new_user = User.objects.create(
+      first_name=req_body['first_name'],
+      last_name=req_body['last_name'],
+      email=req_body['email'],
+      username=req_body['username'],
+      password=req_body['password'],
+    )
+
+    new_user.save()
+
+    uf = UserFeatured.objects.create(owner=new_user)
+    try:
+      ui = UserImage.objects.create(owner=new_user, image_url=req_body['image_url'])
+    except:
+      pass
+
+    return login_user(request)
+
+
