@@ -207,6 +207,21 @@ class ListReviewList(ListView):
   queryset = ListReview.objects.all()
   serializer_class = ListReviewSerializer
 
+  def post(self, request, *args, **kwargs):
+    req_body = json.loads(request.body.decode())
+    review = Review.objects.get(id=req_body['review'])
+    list_id = List.objects.get(id=req_body['list_id'])
+
+    lr_inst = ListReview.objects.create(
+      review = review,
+      list_id = list_id
+    )
+
+    lr_inst.save()
+
+    lr_res = ListReviewSerializer(lr_inst, context={'request': request})
+    return Response(lr_res.data)
+
 class ListReviewDetail(DetailView):
   model = ListReview
   queryset = ListReview.objects.all()

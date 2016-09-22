@@ -56,7 +56,7 @@ class ListReviewSerializer(serializers.HyperlinkedModelSerializer):
 
   class Meta:
     model = ListReview
-    fields = ('id', 'review', 'list_id')
+    fields = ('id', 'url', 'review', 'list_id')
 
 class UserFeaturedSerializer(serializers.HyperlinkedModelSerializer):
 
