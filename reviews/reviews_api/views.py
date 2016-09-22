@@ -260,18 +260,22 @@ class FeaturedReviewList(ListView):
 
 @csrf_exempt
 def login_user(request):
+    print('========= Logging in user ==========')
     req_body = json.loads(request.body.decode())
 
+    print(req_body)
     auth = authenticate(
             username=req_body['username'],
             password=req_body['password']
             )
+    print(auth)
 
     success = True
     if auth is not None:
         login(request=request, user=auth)
     else:
         success = False
+    print(success)
 
     data = json.dumps({"success":success})
     return HttpResponse(data, content_type='application/json')
@@ -285,17 +289,19 @@ def register_user(request):
       last_name=req_body['last_name'],
       email=req_body['email'],
       username=req_body['username'],
-      password=req_body['password'],
     )
+
+    new_user.set_password(req_body['password']);
 
     new_user.save()
 
     uf = UserFeatured.objects.create(owner=new_user)
     try:
       ui = UserImage.objects.create(owner=new_user, image_url=req_body['image_url'])
-    except:
-      pass
+    except KeyError:
+      ui = UserImage.objects.create(owner=new_user)
 
-    return login_user(request)
+    data = json.dumps({"success":True})
+    return HttpResponse(data, content_type='application/json')
 
 
