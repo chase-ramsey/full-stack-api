@@ -1,4 +1,5 @@
-from reviews_api.models import MediaChoice, Media, Review, Tag, ReviewTag, List, ListReview
+from reviews_api.models import *
+from django.contrib.auth import logout, login, authenticate
 from reviews_api.serializers import *
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -11,6 +12,8 @@ from reviews_api import review_report
 from reviews_api import tags
 from rest_framework import permissions
 from django.views.decorators.csrf import csrf_exempt
+import json
+from django.http import HttpResponse
 import reviews_api.permissions
 
 @api_view(['GET'])
@@ -266,7 +269,7 @@ def login_user(request):
 
     success = True
     if auth is not None:
-        login(request=request, user=authenticated_user)
+        login(request=request, user=auth)
     else:
         success = False
 
