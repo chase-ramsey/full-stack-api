@@ -109,17 +109,22 @@ class ReviewList(mixins.ListModelMixin,
     return self.list(request, *args, **kwargs)
 
   def post(self, request, *args, **kwargs):
-    review = json.loads(request.body.decode())
-    print(review)
-    report = review_report.make_call(review['full_text'])
+    report = review_report.make_call(request.data['full_text'])
+    review = request.data
 
     rev_inst = Review.objects.create(
       media = Media.objects.get(pk=int(review['media'].split('/')[-2])),
       owner = self.request.user,
       full_text = review['full_text'],
       watson_report = report,
-      image_url = review['image_url']
     )
+    rev_inst.save()
+
+    try:
+      rev_inst.image_url = review['image_url']
+    except KeyError:
+      pass
+
     rev_inst.save()
 
     tags.create_review_tags(review=rev_inst)
@@ -147,8 +152,7 @@ class ReviewDetail(mixins.RetrieveModelMixin,
 
     tags.create_review_tags(data=request.data, id=kwargs['pk'], update=True)
 
-    update_res = ReviewSerializer(res)
-    return update_res
+    return res
 
   def delete(self, request, *args, **kwargs):
     delete_res = self.destroy(request, *args, **kwargs)
@@ -302,10 +306,12 @@ def login_user(request):
     success = True
     if auth is not None:
         login(request=request, user=auth)
+        uid = auth.id
+        data = json.dumps({"success":success, "uid": uid})
     else:
         success = False
+        data = json.dumps({"success":success})
 
-    data = json.dumps({"success":success})
     return HttpResponse(data, content_type='application/json')
 
 @csrf_exempt
@@ -331,5 +337,3 @@ def register_user(request):
 
     data = json.dumps({"success":True})
     return HttpResponse(data, content_type='application/json')
-
-
